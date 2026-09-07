@@ -3,8 +3,11 @@ dist/
 .env
 .env.*
 !.env.example
-.superpowers/
 test-results/
 playwright-report/
 .tmp/
+coverage/
 *.log
+.vite/
+*.tsbuildinfo
+.superpowers/
