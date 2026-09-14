@@ -18,7 +18,7 @@ export const lessons: Lesson[] = [
   make({
     id: 'ts18.class-value-type', chapter: 4, order: 18,
     title: '클래스를 런타임 값과 인스턴스 타입으로 활용하기', navTitle: '클래스 값과 타입',
-    summary: 'OrderStore 인터페이스를 구현하고, MemoryOrderStore 클래스에 주문 저장과 조회 동작을 작성합니다.',
+    summary: 'MemoryOrderStore 클래스가 생성자 함수(값)와 인스턴스 타입이라는 두 가지 역할을 모두 수행하는지 확인하고, OrderStore 인터페이스의 실제 동작을 구현해 봅니다.',
     story: '주문 저장소 로직을 테스트용 메모리 구현체로 교체하려 했으나, 클래스 이름을 생성자 호출 자리와 타입 선언 자리에서 혼동하면서 의존성 주입 코드가 복잡해졌습니다. 인터페이스 계약, 클래스 구현체, 그리고 new 연산자로 생성되는 런타임 인스턴스 값을 실습을 통해 확실히 구분해 봅니다.',
     concept: [
       'class 선언은 new 연산자로 호출할 생성자 값과, 이를 통해 생성될 인스턴스 타입을 동시에 정의합니다. `typeof MemoryOrderStore` 타입은 생성자 자체를 가리키며, `MemoryOrderStore` 타입은 인스턴스 객체를 가리킵니다.',
@@ -26,11 +26,11 @@ export const lessons: Lesson[] = [
     ],
     workedExample: {
       title: '완성 예시: 클래스의 값(Value)과 타입(Type) 구분하기',
-      code: 'class MemoryStore {}\n\nconst storeConstructor: typeof MemoryStore = MemoryStore;\nconst store: MemoryStore = new storeConstructor();',
+      code: 'class MemoryStore {}\n\nconst StoreConstructor: typeof MemoryStore = MemoryStore;\nconst store: MemoryStore = new StoreConstructor();',
       result: ['typeof MemoryStore 타입은 new 연산자로 인스턴스를 생성할 수 있는 생성자 함수(값)를 의미합니다.', 'MemoryStore 타입은 생성된 인스턴스 객체를 의미하므로, store 변수에 새 인스턴스를 안전하게 할당할 수 있습니다.'],
     },
     mission: 'OrderStore 인터페이스를 구현하는 MemoryOrderStore 클래스를 완성하세요. 생성자로 인스턴스를 생성할 수 있어야 하며, 저장된 주문을 id 속성을 사용해 다시 조회할 수 있어야 합니다.',
-    goals: ['인터페이스를 구현하는 클래스의 메서드 계약을 지킨다.', 'Map에 주문을 저장하고 id 속성값으로 조회한다.'],
+    goals: ['클래스의 생성자 값과 인스턴스 타입을 명확히 구분한다.', 'implements 계약을 만족하는 실제 저장 및 조회 동작을 구현한다.'],
     hints: ['`Map<string, Order>` 타입의 저장소를 클래스 내부의 private 필드로 선언해 보세요.', 'save 메서드에서는 order.id를 키(Key)로 사용하여 주문을 저장하세요.', 'find 메서드의 반환 타입에는 주문을 찾지 못했을 경우를 대비해 undefined 타입을 포함해야 합니다.'],
     explanation: ['`typeof Class` 타입과 `Class` 타입이 서로 다른 맥락에서 쓰인다는 점은 NestJS 같은 DI(의존성 주입) 프레임워크의 프로바이더 토큰과 인스턴스 타입을 이해하는 기초가 됩니다.', 'implements 절은 오직 컴파일 타임의 타입 계약 검사일 뿐입니다. 외부 JSON 입력이 실제 Order 타입인지 검증해 주지 않으므로 런타임 경계 검증은 별도로 구현해야 합니다.'],
     starter: { 'index.ts': `export type Order = { id: string; total: number };
@@ -62,9 +62,9 @@ export class MemoryOrderStore implements OrderStore {
     workedExample: {
       title: '완성 예시: 공통 조회 로직은 상속하고 저장 로직만 직접 구현하기',
       code: 'abstract class Repository {\n  abstract save(id: string): void;\n  find(id: string): string { return id; }\n}\n\nclass MemoryRepository extends Repository {\n  save(id: string): void { void id; }\n}',
-      result: ['Repository 추상 클래스는 직접 인스턴스화할 수 없으며, MemoryRepository 파생 클래스에서 save 추상 메서드를 반드시 구현해야 합니다.', 'find 메서드는 기본 클래스에 이미 구현되어 있으므로 파생 클래스에서 다시 구현하지 않아도 됩니다.'],
+      result: ['Repository 추상 클래스는 직접 인스턴스화할 수 없으며, MemoryRepository 파생 클래스에서 save 추상 메서드를 반드시 구현해야 합니다.', 'find 메서드는 기본 클래스에 이미 구현되어 있으므로, 파생 클래스에서 작성 없이 그대로 재사용합니다.'],
     },
-    mission: 'OrderRepository 추상 클래스에 공통 find 메서드를 구현하고, MemoryOrderRepository 파생 클래스에는 save 메서드만 구현하세요.',
+    mission: 'OrderRepository의 공통 find 구현 로직을 재사용하고, MemoryOrderRepository에서는 save 로직만 작성해 본 뒤, 인터페이스를 대체재로 선택할 때의 판단 기준을 정리해 보세요.',
     goals: ['추상 멤버의 역할과 상속된 공통 구현 로직의 책임을 구분한다.', '공통 구현 로직이 없을 때 인터페이스를 선택해야 하는 이유를 이해한다.'],
     hints: ['기본 클래스의 orders 필드는 파생 클래스에서도 접근할 수 있도록 protected 접근 제한자로 선언하세요.', 'find 메서드는 기본 클래스 내부에 공통 로직으로 구현합니다.', 'save 메서드는 abstract 키워드로 선언만 하고, 실제 구현은 파생 클래스로 위임하세요.'],
     explanation: ['공통 `Map` 상태와 `find` 메서드 로직이 존재하므로, 이 예제에서는 추상 클래스를 사용하는 것이 코드 중복을 줄이는 효율적인 선택입니다.', '단순히 여러 구현체 간의 스펙 계약이나 서로 다른 데이터 저장 방식만 필요하다면 인터페이스 기반의 조합(Composition)이 훨씬 유연합니다. 자바스크립트의 클래스는 단일 상속만 지원한다는 점에 유의하세요.'],
@@ -98,12 +98,12 @@ export class MemoryOrderRepository extends OrderRepository {
     summary: '메서드 호출 로그를 남기는 표준 데코레이터를 구현해 보며, 데코레이터가 런타임에 실행되는 코드임을 이해하고 외부 입력값의 타입을 검증해주지는 못하는 한계를 확인합니다.',
     story: '결제 서비스 메서드에 데코레이터를 적용하자, 팀원들이 런타임 요청값까지 자동으로 검증된다고 오해했습니다. 데코레이터가 클래스 정의 시점과 실제 메서드 호출 시점에 어떻게 개입하는지 실행 결과로 확인하고, DTO 검증 책임의 명확한 경계를 설정해 봅니다.',
     concept: [
-      '표준 메서드 데코레이터 함수는 원본 메서드와 context 객체를 받아 래퍼 함수를 반환할 수 있습니다. This는 this 객체, Args는 인수 목록, Return은 반환값을 나타내는 타입 매개변수입니다. 데코레이터 함수는 클래스 정의 시점에 실행되고 래퍼 함수는 메서드를 호출할 때 실행됩니다.',
+      '표준 메서드 데코레이터 함수는 대상 메서드와 context 객체를 매개변수로 받아 새로운 래퍼 함수를 반환할 수 있습니다. 데코레이터 함수 자체는 클래스가 선언 및 정의되는 시점에 실행되며, 반환된 래퍼 함수의 내부 로직은 실제 인스턴스 메서드가 호출될 때마다 실행됩니다.',
       '데코레이터의 타입 시그니처는 컴파일 타임에 잘못된 입력을 방지할 수 있지만, 네트워크를 통해 들어오는 실제 런타임 데이터의 형태를 검증해주지는 않습니다. NestJS Controller 등의 파이프라인 검증 체계는 별도의 런타임 로직으로 동작합니다.',
     ],
     workedExample: {
       title: '완성 예시: 메서드를 감싸 호출 기록 남기기',
-      code: 'function log<This>(target: (this: This) => string, context: ClassMethodDecoratorContext<This, (this: This) => string>) {\n  return function (this: This): string {\n    console.log(String(context.name));\n    return target.call(this);\n  };\n}',
+      code: 'function log(target: () => string, context: ClassMethodDecoratorContext) {\n  return function (): string {\n    console.log(String(context.name));\n    return target.call(this);\n  };\n}',
       result: ['log 데코레이터 함수는 클래스가 정의될 때 원본 메서드를 전달받아 래퍼 함수를 반환합니다.', '래퍼 함수 내부의 console.log 실행 로직은 인스턴스의 메서드가 실제 호출될 때 동작합니다.'],
     },
     mission: '`@logCall` 데코레이터를 구현하여 charge 메서드가 호출될 때마다 메서드 이름을 calls 배열에 기록하고, 원본 this 바인딩, 전달된 인수, 반환값을 그대로 유지하도록 작성하세요.',
@@ -139,19 +139,19 @@ export class PaymentService {
   make({
     id: 'ts21.enum-or-const-object', chapter: 4, order: 21,
     title: '선택 심화: enum과 as const 객체 비교 분석하기', navTitle: '선택: enum 비교',
-    summary: 'enum과 as const 객체의 런타임 형태를 구분하고, JSON 상태값에 맞는 문자열 유니온을 만듭니다.',
+    summary: 'enum과 as const 단언 객체가 자바스크립트로 트랜스파일될 때 생성하는 런타임 결과물을 비교하고, 신규 프로젝트의 주문 상태 정의에 문자열 유니온을 추천하는 기준을 살펴봅니다.',
     story: '서버 JSON API는 문자열 형태의 상태값을 반환하는데, 클라이언트 도메인 모델에서 숫자 enum을 사용하다 보니 로깅 및 응답 값 일치 과정에서 혼선이 발생했습니다. 기존 라이브러리의 enum 호환성은 유지하면서, 신규 공개 스펙에서는 런타임 구조와 직렬화 표현이 명확히 드러나는 설계를 선택해 봅니다.',
     concept: [
       'enum 선언은 타입 역할을 하는 동시에 런타임 자바스크립트 객체를 생성합니다. `as const` 단언을 적용한 객체 역시 런타임 값으로 남지만, 속성값으로부터 유니온 타입을 추출하여 JSON 문자열과 일치하는 명확한 타입을 구성할 수 있습니다.',
-      '본 레슨은 선택 심화 과정입니다. 기존 API가 enum을 사용한다면 호환해야 합니다. 새 앱 모델에서는 문자열 유니온이나 as const 객체가 JSON 값과 직접 대응해 더 단순할 수 있습니다.',
+      '본 레슨은 선택 심화 과정입니다. 기존 API가 enum으로 작성되어 있다면 이를 호환하여 읽고 사용할 수 있어야 하지만, 신규 신규 앱 모델을 작성할 때는 문자열 유니온이나 `as const` 객체를 활용하는 것이 훨씬 단순하고 명확한 경우가 많습니다.',
     ],
     workedExample: {
       title: '완성 예시: 상수 객체로부터 문자열 유니온 타입 생성하기',
       code: 'const STATUS = { pending: "pending", paid: "paid" } as const;\ntype Status = typeof STATUS[keyof typeof STATUS];\n\nconst current: Status = "pending";',
       result: ['as const 단언을 붙이면 객체 속성의 값이 일반 string이 아닌 "pending" 및 "paid" 문자열 리터럴 타입으로 동결됩니다.', 'typeof와 keyof를 조합해 만든 Status 타입은 "pending" | "paid" 유니온 타입이 되므로 지정되지 않은 다른 문자열 할당을 방지합니다.'],
     },
-    mission: 'ORDER_STATUS 객체에서 OrderStatus 유니온 타입을 만들고, statusLabel 함수가 "pending"에는 "결제 대기", "paid"에는 "결제 완료"를 반환하도록 작성하세요.',
-    goals: ['enum과 as const 객체가 모두 런타임 값으로 남는다는 점을 이해한다.', 'JSON 문자열 상태값과 맞는 유니온 타입을 만든다.'],
+    mission: 'ORDER_STATUS 객체로부터 OrderStatus 유니온 타입을 추론해내고, statusLabel 함수가 허용된 상태값만 받아 올바른 라벨 문자열을 반환하도록 작성해 보세요.',
+    goals: ['enum과 as const 객체가 모두 런타임에 실제 객체 값으로 평가됨을 이해한다.', 'JSON API 스펙과의 직렬화 호환성 및 번들 크기를 고려해 상태 표현 방식을 결정한다.'],
     hints: ['객체 속성의 리터럴 타입을 추론 상태로 유지하려면 `as const` 단언을 추가하세요.', '`typeof ORDER_STATUS[keyof typeof ORDER_STATUS]` 구문으로 값들의 유니온 타입을 추출할 수 있습니다.', 'statusLabel 함수 내부에서 허용된 두 가지 상태값을 모두 처리하세요.'],
     explanation: ['서버가 "pending", "paid"와 같은 문자열 데이터를 전송하는 스펙에서는 동일한 문자열 값을 가지는 const 객체가 직렬화 형식을 직관적으로 보여줍니다.', 'enum 선언이 무조건 잘못된 것은 아닙니다. 레거시 라이브러리와의 호환성, 역방향 매핑(Reverse Mapping)의 필요성, 팀 내부 컨벤션 등을 다각도로 비교하여 선택해야 합니다.'],
     starter: { 'index.ts': `export enum LegacyStatus { Pending, Paid }
@@ -173,13 +173,13 @@ export function statusLabel(status: OrderStatus): string { return status === ORD
     summary: 'strict, noUncheckedIndexedAccess, exactOptionalPropertyTypes 옵션이 각각 지적하는 배열 접근 에러, catch 블록 unknown 타입 문제, 선택적 속성 타입을 안전한 코드로 보완합니다.',
     story: '기존 어드민 코드베이스에 strict 검사 기준을 적용하자 빈 배열 접근 시점의 undefined 에러, catch 블록의 에러 객체 접근 문제, nickname: undefined 요청 등의 에러가 대거 감지되었습니다. 컴파일러 옵션을 끄지 않고 각 값이 실제로 없거나 타입을 알 수 없는 경계에서 안전하게 처리하도록 기준선을 구축합니다.',
     concept: [
-      'strict 옵션은 여러 엄격 검사를 묶은 기준선입니다. noUncheckedIndexedAccess와 exactOptionalPropertyTypes는 strict에 포함되지 않는 별도 옵션입니다. 앞 옵션은 인덱스 접근 결과에 undefined를 추가하고, 뒤 옵션은 선택적 속성의 생략과 명시적인 undefined 대입을 구분합니다.',
+      'strict 옵션은 타입스크립트의 강력한 엄격 검사 옵션들을 하나로 묶어주는 기준선 역할을 합니다. noUncheckedIndexedAccess 옵션은 배열 및 객체의 인덱스 접근 결과 타입에 undefined를 자동으로 추가합니다. exactOptionalPropertyTypes 옵션은 선택적 속성의 키 생략 상태와 명시적으로 undefined를 할당한 상태를 엄격히 구분합니다.',
       '아래 예시에서는 배열의 첫 번째 원소가 존재하지 않을 경우를 대비해 "없음"이라는 기본값을 설정합니다. 데이터의 부재 가능성을 런타임 경계에서 명확히 처리해 두면 이후 코드는 안전하게 string 타입만 다룰 수 있게 됩니다.',
     ],
     workedExample: {
       title: '완성 예시: 배열 인덱스 접근 시 undefined 안전하게 처리하기',
-      code: 'type Settings = { locale?: string };\n\nfunction firstName(names: readonly string[]): string {\n  return names[0]?.trim() ?? "이름 없음";\n}\n\nfunction message(error: unknown): string {\n  return error instanceof Error ? error.message : String(error);\n}\n\nfunction settings(locale: string | undefined): Settings {\n  return locale === undefined ? {} : { locale };\n}',
-      result: ['noUncheckedIndexedAccess를 사용하면 names[0]은 string | undefined이므로 기본값을 처리합니다.', 'catch 등에서 받은 unknown 오류는 Error인지 확인한 뒤 message 속성을 읽습니다.', 'exactOptionalPropertyTypes를 사용하면 locale이 undefined일 때 속성 자체를 생략합니다.'],
+      code: 'function firstLabel(items: readonly string[]): string {\n  return items[0]?.trim() ?? "없음";\n}',
+      result: ['noUncheckedIndexedAccess 옵션이 활성화되면 items[0]의 반환 타입은 string | undefined가 됩니다.', '옵셔널 체이닝과 Nullish 병합 연산자(??)를 사용해 빈 배열일 경우 "없음"을 반환하도록 처리하여 항상 string 반환을 보장합니다.'],
     },
     mission: '유사한 마이그레이션 대상 코드에서 firstLabel, errorMessage, makeProfile 함수를 수정하여 엄격한 검사 기준을 통과하고 의도된 tsconfig 설정과 일치시키세요.',
     goals: ['배열 인덱스 접근 및 catch 블록의 unknown 타입이 유발할 수 있는 실패 가능성을 코드에 안전하게 반영한다.', '선택적 속성의 키 생략과 명시적 undefined 할당의 차이를 이해하고 안전하게 분기한다.'],
@@ -208,8 +208,8 @@ export function makeProfile(nickname: string | undefined): Profile { return nick
     ],
     workedExample: {
       title: '완성 예시: 호출자가 전달하는 모든 데이터 형태 받아내기',
-      code: 'type Message = { text: string };\ntype MessageHandler = (message: Message) => void;\n\nconst handleMessage: MessageHandler = (message) => {\n  console.log(message.text);\n};',
-      result: ['handleMessage 콜백은 호출자가 전달할 수 있는 모든 Message 객체를 받습니다.', '콜백 매개변수에 더 좁은 속성을 요구하면 일반 Message 객체를 전달하는 호출과 맞지 않습니다.'],
+      code: 'type Row = { id: string; name: string };\ntype RowRenderer = (row: Row) => string;\n\nconst renderRow: RowRenderer = (row) => row.name;',
+      result: ['renderRow 콜백 함수는 RowRenderer 타입이 허용하는 모든 Row 데이터를 받을 수 있습니다.', 'vip 속성을 필수 조건으로 요구하지 않으므로, 일반 Row 객체가 입력되어도 없는 속성을 참조하는 런타임 오류가 발생하지 않습니다.'],
     },
     mission: 'renderRow 함수가 모든 Row 데이터를 안전하게 전달받을 수 있도록 수정하고, vip 속성을 필수 타입으로 요구하는 콜백이 왜 RowRenderer 위치에 할당될 수 없는지 확인하세요.',
     goals: ['콜백 호출자가 전달 가능한 전체 데이터 범위를 입력 타입으로 받아들인다.', '너무 좁게 정의된 매개변수 타입이 유발하는 런타임 실패 사례를 이해한다.'],
@@ -236,13 +236,13 @@ export const renderRow: RowRenderer = (row) => row.name;
     ],
     workedExample: {
       title: '완성 예시: 일반 스크립트를 모듈로 전환하고 타입만 가져오기',
-      code: '// config.ts\nconst region = "seoul";\nexport {};\n\n// view.ts\nimport type { User } from "./user.js";',
-      result: ['export {} 구문을 통해 config.ts 파일이 모듈로 다뤄지므로 region 상수가 전역 이름과 충돌하지 않습니다.', 'User 타입에 사용한 import type은 컴파일 시 제거되므로 런타임 의존성을 만들지 않습니다.'],
+      code: '// legacy.ts\nconst mode = "legacy";\nexport {};\n\n// index.ts\nimport type { Order } from "./model.js";',
+      result: ['export {} 구문을 통해 legacy.ts 파일이 모듈로 다뤄지므로, mode 상수가 전역 스코프 식별자와 충돌하지 않습니다.', 'Order 타입에 적용된 import type은 컴파일 시 제거되므로 런타임에 model.js를 로드하지 않습니다.'],
     },
     mission: '제시된 파일들 중 두 전역 스크립트를 독립 모듈로 전환하고, index.ts 파일에서 Order 타입의 import와 label 값의 import 구문을 깔끔하게 분리해 보세요.',
     goals: ['전역 스크립트로 인한 식별자 충돌을 파일 수준의 모듈 경계로 해결한다.', '타입 전용 import 구문과 런타임 값 import 구문을 명확히 구분한다.'],
     hints: ['전역 스코프에 굳이 둘 필요가 없는 파일의 가장 하단에 `export {}` 구문을 추가하세요.', 'Order 타입을 임포트할 때는 `import type` 구문을 사용하세요.', 'label은 런타임에 실행할 함수이므로 일반 값 import 방식을 유지하세요.'],
-    explanation: ['export {}는 해당 파일을 모듈로 표시해 선언의 범위를 파일 안으로 제한합니다.', 'import type은 타입 의존성에 사용하고, 실행에 필요한 값은 일반 import로 가져옵니다.'],
+    explanation: ['모듈화 표시는 단순히 충돌을 피하기 위한 눈속임이 아니며, 해당 파일의 런타임 동작 범위와 유효 스코프를 결정짓는 핵심 요소입니다.', '타입 import 구문은 런타임 번들에서 완전히 제거할 수 있는 타입 의존성인지, 실제 실행에 필요한 값인지 신중히 판단해 작성해야 합니다.'],
     starter: { 'legacy-a.ts': `const mode = 'legacy-a';
 void mode;`, 'legacy-b.ts': `const mode = 'legacy-b';
 void mode;`, 'model.ts': `export type Order = { id: string };
@@ -261,7 +261,7 @@ export const format = (order: Order): string => label(order);` },
   make({
     id: 'ts25.declaration-file', chapter: 4, order: 25,
     title: '사용하는 API 표면만 최소한의 타입 선언 파일(.d.ts)로 정의하기', navTitle: '최소 .d.ts',
-    summary: '타입 선언이 없는 analytics 패키지에서 사용하는 API만 .d.ts 파일에 선언해 이벤트 오타와 필드 누락을 찾습니다.',
+    summary: '타입 선언이 누락된 analytics 패키지에서 실제로 사용하는 이벤트명과 payload 객체 스펙만 핀포인트로 선언(.d.ts)하여 오타와 필드 누락을 잡고, 타입 선언이 런타임 동작을 직접 보장하지는 않는다는 점을 확인합니다.',
     story: '타입 선언이 없는 레거시 analytics 패키지를 any 타입으로 임의 사용했더니 checkout 이벤트 이름의 오타나 orderId 속성 누락을 빌드 시점에 전혀 감지하지 못했습니다. 문서로 검증된 최소한의 사용 표면만 타입으로 선언하여 잘못된 호출을 컴파일 단계에서 포착해 봅니다.',
     concept: [
       '`declare module` 구문은 타입 정의가 없는 외부 자바스크립트 모듈에 정적 타입 인터페이스를 부여할 때 사용합니다. 널리 사용되지 않는 전체 API를 섣불리 추측해 작성하기보다는, 실제로 사용되는 함수와 매개변수 스펙만 좁혀 선언하는 것이 좋습니다.',
@@ -269,8 +269,8 @@ export const format = (order: Order): string => label(order);` },
     ],
     workedExample: {
       title: '완성 예시: 외부 모듈의 최소 호출 스펙 선언하기',
-      code: 'declare module "feature-flags" {\n  export function enabled(\n    flag: "new_search" | "quick_pay",\n  ): boolean;\n}',
-      result: ['enabled 함수는 문서에서 확인한 두 기능 이름만 받습니다.', '선언에 없는 기능 이름을 넘기면 컴파일 타임 오류가 발생합니다. 선언 파일이 실제 구현을 만들지는 않습니다.'],
+      code: 'declare module "analytics" {\n  export function track(\n    event: "checkout_started" | "checkout_completed",\n    payload: { orderId: string },\n  ): void;\n}',
+      result: ['track 함수는 오직 "checkout_started"와 "checkout_completed" 문자열만 이벤트 값으로 허용합니다.', 'payload 객체에 string 타입의 orderId 필드가 누락되면 컴파일 타입 에러가 발생합니다.'],
     },
     mission: 'analytics 모듈 호출부에서 any 타입을 제거하세요. "checkout_started"와 "checkout_completed" 이벤트를 받아들이는 최소한의 track 함수 타입을 analytics.d.ts 파일에 정의하세요.',
     goals: ['프로젝트에서 실제로 사용하는 패키지 API의 최소 표면만 선언한다.', '선언 파일의 정적 타입 보장과 자바스크립트 모듈의 런타임 실제 동작을 구분한다.'],
@@ -297,8 +297,8 @@ track('checkout_started', { orderId: 'ord_1' });` },
     ],
     workedExample: {
       title: '완성 예시: export = 선언 모듈을 래퍼 함수로 캡슐화하기',
-      code: 'import slugger from "./legacy-slugger.js";\n\nexport function toSlug(title: string): string {\n  return slugger(title, { lowercase: true });\n}',
-      result: ['esModuleInterop 또는 allowSyntheticDefaultImports 설정이 허용하면 export = 모듈을 default import 형태로 가져올 수 있습니다.', 'toSlug 래퍼 함수는 외부 패키지의 옵션을 감추고 string 입력과 string 반환만 앱에 제공합니다.'],
+      code: 'import formatter from "./legacy-formatter.js";\n\nexport function formatOrder(id: string): string {\n  return formatter(id, { uppercase: true });\n}',
+      result: ['프로젝트 환경 설정이 Default Import 호환성을 지원하므로, export = 선언 모듈의 함수 값을 formatter 식별자로 임포트합니다.', 'formatOrder 래퍼 함수는 패키지의 복잡한 내부 옵션 대신 단순 string 입력과 string 반환 타입만 앱에 제공합니다.'],
     },
     mission: '제시된 export = 타입 선언을 분석하여 formatter를 올바르게 가져온 후, 주문 id를 대문자 형식으로 반환하는 formatOrder 래퍼 함수를 완성하세요.',
     goals: ['export = 구문과 ESM 내보내기 구문 간의 모듈 형태 차이를 식별한다.', '외부 패키지의 의존 범위를 앱 내부의 가벼운 래퍼 함수 인터페이스로 격리한다.'],
@@ -310,7 +310,7 @@ export = formatter;`, 'modern-formatter.d.ts': `export function format(value: st
 export = formatter;`, 'modern-formatter.d.ts': `export function format(value: string, options?: { uppercase?: boolean }): string;`, 'index.ts': `import formatter from './legacy-formatter.js';
 export function formatOrder(id: string): string { return formatter(id, { uppercase: true }); }` },
     editableFiles: ['index.ts'], mode: 'typecheck', sources: [declarations, modules],
-    interview: { question: '패키지의 .d.ts 파일만 확인하고 실제 ESM/CommonJS 런타임 호환성을 단정할 수 없는 이유는 무엇인가요?', answer: '타입 선언 파일은 정적 타입만 설명합니다. 런타임 로딩 방식은 자바스크립트 파일, package.json의 exports, 실행 환경의 모듈 해석에 따라 달라집니다.', points: ['정적 타입 선언 파일의 한계', '런타임 exports 확인', '래퍼 함수로 변경 범위 제한'] },
+    interview: { question: '패키지의 .d.ts 파일만 확인하고 실제 ESM/CommonJS 런타임 모듈 호환성을 단정지을 수 없는 이유는 무엇인가요?', answer: '타입 선언 파일은 정적 타입 표면만 설명할 뿐이며, 런타임 모듈 로딩 방식은 자바스크립트 실체 파일, package.json의 exports 명세, 런타임 환경의 모듈 해설(Resolution)에 따라 결정되기 때문입니다.', points: ['정적 타입 선언 파일의 한계', '런타임 exports 명세 확인의 필요성', '래퍼 함수 패턴을 통한 변경 파급 효과 최소화'] },
   }),
   make({
     id: 'ts27.mapped-errors', chapter: 5, order: 27,
@@ -323,10 +323,10 @@ export function formatOrder(id: string): string { return formatter(id, { upperca
     ],
     workedExample: {
       title: '완성 예시: 모델의 필드 키마다 선택적 에러 배열 타입 매핑하기',
-      code: 'type Flags<T> = {\n  [K in keyof T]?: boolean;\n};\n\ntype FeatureFlags = Flags<{ search: string; checkout: string }>;',
-      result: ['매핑 타입이 "search"와 "checkout" 키를 순회해 같은 이름의 boolean 속성을 만듭니다.', '? 수식어가 있으므로 설정하지 않은 기능은 생략할 수 있습니다.'],
+      code: 'type FieldErrors<T> = {\n  [K in keyof T]?: string[];\n};\n\ntype Errors = FieldErrors<{ title: string; quantity: number }>;',
+      result: ['매핑 타입이 "title"과 "quantity" 키를 순회하며 각각 동일한 이름의 에러 속성을 생성합니다.', '? 옵셔널 수식어 덕분에 검증 에러가 없는 필드는 객체 생성 시 자유롭게 생략할 수 있습니다.'],
     },
-    mission: '`FieldErrors<T>`가 T 타입 매개변수로 받은 모델의 각 키에 선택적인 `string[]` 오류 목록을 연결하도록 고치세요.',
+    mission: '`FieldErrors<T>`가 generic T 모델의 모든 키에 선택적인 `string[]` 에러 타입을 연결하도록 작성하고, 모델에 존재하지 않는 임의의 키는 허용하지 않도록 타입을 고치세요.',
     goals: ['`keyof T` 키를 순회하는 Mapped Type을 올바르게 정의한다.', '에러가 없는 정상 필드를 optional(?) 속성으로 명확히 표현한다.'],
     hints: ['`[K in keyof T]` 형태로 원본 데이터의 키를 순회하세요.', '각 속성에 매핑될 타입은 여러 에러 메시지들을 보관할 수 있는 `string[]`입니다.', '속성 이름 뒤에 `?` 수식어를 덧붙여 에러 없는 필드가 생략될 수 있도록 하세요.'],
     explanation: ['OrderForm의 속성 스펙이 변경되면 `FieldErrors<OrderForm>` 타입 역시 동적으로 변경 사항을 추적하므로 누락 위험이 방지됩니다.', '이 타입 정의는 어디까지나 컴파일 타임의 에러 객체 형태만 규정할 뿐, 실제 런타임 검증을 수행하거나 에러 메시지를 생성해 주지는 않으므로 별도의 런타임 로직이 수반되어야 합니다.'],
@@ -339,7 +339,7 @@ export function formatOrder(id: string): string { return formatter(id, { upperca
   make({
     id: 'ts28.infer-and-distribution', chapter: 5, order: 28,
     title: '선택 심화: infer 타입 추출과 조건부 타입의 분산 동작 제어하기', navTitle: '선택: infer와 분산',
-    summary: '이벤트 유니온에서 payload 타입을 추출하고, 유니온 전체가 조건을 만족하는지는 분산 없이 검사합니다.',
+    summary: '이벤트 유니온 타입에서 payload 타입을 각 요소별로 추출하는 상황과, 유니온 전체가 특정 조건을 만복하는지 분산 없이 일괄 검사하는 상황을 구분하여 구현해 봅니다.',
     story: '이벤트 버스 라이브러리 타입을 분석하던 중, 일부 이벤트만 payload 속성을 갖고 있음에도 전체 이벤트 타입에 payload가 항상 존재한다고 잘못 판단하는 문제가 생겼습니다. 조건부 타입의 분산(Distributive) 특성을 의도에 맞춰 제어하여 타입 안전성을 높여 봅니다.',
     concept: [
       '조건부 타입 삼항 연산자의 좌변에 감싸지지 않은 제네릭 타입 매개변수 T가 들어오면, 유니온 타입의 개별 요소 단위로 조건식이 각각 적용되는 분산(Distributive) 동작이 일어납니다. 이때 `infer` 키워드를 활용하면 매칭된 타입 내부의 특정 요소만 추출하여 변수처럼 다룰 수 있습니다.',
@@ -347,10 +347,10 @@ export function formatOrder(id: string): string { return formatter(id, { upperca
     ],
     workedExample: {
       title: '완성 예시: payload 타입 추출과 전체 유니온 조건 검사 구분하기',
-      code: 'type ItemOf<T> = T extends readonly (infer Item)[] ? Item : never;\ntype AreAllArrays<T> = [T] extends [readonly unknown[]] ? true : false;\n\ntype Input = string[] | number;',
-      result: ['ItemOf<Input> 타입은 유니온에 분산되어 string 타입을 추출합니다.', 'Input의 모든 구성원이 배열은 아니므로 AreAllArrays<Input> 타입은 false로 평가됩니다.'],
+      code: 'type PayloadOf<T> = T extends { payload: infer P } ? P : never;\ntype IsAllPayload<T> = [T] extends [{ payload: unknown }] ? true : false;\n\ntype Event = { payload: string } | { type: "close" };',
+      result: ['PayloadOf<Event> 타입은 유니온 요소별로 분산 적용되어 string 타입만 안전하게 추출해 냅니다.', 'Event 유니온의 모든 요소에 payload가 존재하는 것은 아니므로, IsAllPayload<Event> 타입은 false로 평가됩니다.'],
     },
-    mission: '`PayloadOf<T>` 타입은 각 이벤트의 payload 속성 타입을 추출하고, `IsAllPayload<T>` 타입은 모든 유니온 구성원에 payload 속성이 있을 때만 true 타입으로 평가되도록 완성하세요.',
+    mission: '`PayloadOf<T>` 타입은 각 이벤트 요소의 payload 속성 타입을 추출하도록 구현하고, `IsAllPayload<T>` 타입은 모든 유니온 요소가 payload를 보유하고 있을 때만 true를 반환하도록 완성하세요.',
     goals: ['infer 키워드를 활용해 구조화된 타입의 내부 요소를 추론/추출한다.', '분산 조건부 타입(Distributive Conditional Type)과 튜플을 활용한 분산 억제 기술을 이해한다.'],
     hints: ['`PayloadOf<T>`에서는 제네릭 매개변수 T를 조건식 좌변에 감싸지 않고 직접 위치시키세요.', 'payload 타입은 `infer P` 구문을 통해 동적으로 캡처할 수 있습니다.', '유니온 전체를 한 덩어리로 비교하려면 조건식 양변을 `[T]` 형태로 감싸 튜플로 만드세요.'],
     explanation: ['분산 특성은 각 이벤트 형태별로 정의된 payload 유니온 타입을 획득할 때 유용하며, 유니온 전체가 공통 조건 스펙을 충족하는지 검증할 때는 억제시켜야 합니다.', '이 조건부 타입 계산은 어디까지나 정적 컴파일 단계의 계산이므로 런타임 이벤트 데이터에 대한 검증은 별도로 이루어져야 합니다.'],
@@ -365,19 +365,19 @@ export type IsAllPayload<T> = [T] extends [{ payload: unknown }] ? true : false;
   make({
     id: 'ts29.template-key-remap', chapter: 5, order: 29,
     title: '선택 심화: 템플릿 리터럴과 키 재매핑(Key Remapping) 적용 범위 설정하기', navTitle: '선택: key remap',
-    summary: '도메인 모델의 문자열 키로 "Changed" 이벤트와 "metric_" 접두사가 붙은 속성을 만듭니다.',
-    story: '대시보드 이벤트와 메트릭 키를 손으로 반복해서 적다 보니 오타가 생겼습니다. 원본 모델의 문자열 키에서 공개 이름을 만들고 값 타입은 그대로 유지합니다.',
+    summary: '도메인 모델의 키로부터 "Changed" 이벤트 타입 및 "metric_" 접두사가 붙은 뷰 모델 키를 매핑 타입으로 동적 생성하되, 문자열 조합 폭발에 따른 타입 계산 비용과 API 복잡도를 관리해 봅니다.',
+    story: '대시보드 이벤트 및 메트릭 키 이름을 수동으로 기입하다 보니 오타가 자주 생겼습니다. 이를 해결하고자 모든 속성 키의 조합을 자동 추론하게 만들었으나 공개 API 타입의 덩치가 너무 거대해졌습니다. 꼭 필요한 핵심 키 조합만 동적으로 매핑되도록 범위를 제한하여 컴파일 비용을 최적화해 봅니다.',
     concept: [
       '템플릿 리터럴 타입(Template Literal Type)은 문자열 리터럴 타입들을 결합하여 새로운 형태의 문자열 타입을 생성합니다. 매핑 타입의 `as` 절을 조합하면 원본 객체 속성의 키 이름을 동적으로 재정의(Remap)할 수 있습니다.',
       '`Extract<keyof T, string>` 구문을 사용하면 symbol이나 number 형태의 키를 안전하게 제어할 수 있습니다. 무분별한 조합 생성은 타입 체커 연산 성능 저하 및 에러 메시지 가독성 저하로 이어질 수 있으므로 유의해야 합니다.',
     ],
     workedExample: {
-      title: '완성 예시: 문자열 키를 조합하고 새 키로 바꾸기',
-      code: 'type GetterName<T> = `get${Capitalize<Extract<keyof T, string>>}`;\ntype ApiView<T> = {\n  [K in keyof T as `api_${Extract<K, string>}`]: T[K];\n};\n\ntype UserGetter = GetterName<{ name: string; age: number }>;\ntype ApiUser = ApiView<{ name: string; age: number }>;',
-      result: ['UserGetter 타입은 "getName" | "getAge" 유니온으로 평가됩니다.', 'ApiView는 as 절에서 원본 키 앞에 "api_"를 붙입니다. 값 타입은 T[K]로 그대로 유지합니다.'],
+      title: '완성 예시: 도메인 속성 키를 이벤트 변경 문구 타입으로 재매핑하기',
+      code: 'type ChangeEvent<T> = `${Extract<keyof T, string>}Changed`;\n\ntype OrderEvent = ChangeEvent<{ title: string; quantity: number }>;',
+      result: ['Extract 구문이 객체의 키 타입 중 string 형태의 필드 이름만 정확히 추출해 냅니다.', '템플릿 리터럴 타입이 추출된 키 뒤에 "Changed"를 붙여 OrderEvent를 "titleChanged" | "quantityChanged" 유니온으로 만들어 줍니다.'],
     },
     mission: 'ChangeEvent<T>와 PublicMetrics<T> 타입을 작성하여 string 키만 골라 재매핑을 수행하고 원본 값 타입을 온전히 유지하도록 완성하세요.',
-    goals: ['템플릿 리터럴 타입으로 문자열 키를 조합한다.', '매핑 타입의 as 절로 키 이름을 바꾸면서 원본 값 타입을 유지한다.'],
+    goals: ['템플릿 리터럴 타입과 키 재매핑(`as` 절) 기법을 노출할 API 타입에 적용한다.', '타입 조합의 과도한 확장이 일으키는 컴파일 오버헤드와 DX 저하 비용을 이해한다.'],
     hints: ['`keyof T`로 얻은 타입 중 `Extract<..., string>`을 사용해 문자열 키만 걸러내세요.', '이벤트명 생성 시에는 추출된 원본 키 뒤에 "Changed" 접미사를 덧붙이세요.', 'PublicMetrics 구현 시에는 `as` 절을 사용해 키 앞에 `metric_` 접두사를 지정하고, 반환값 타입은 `T[K]` 형태를 유지하세요.'],
     explanation: ['도메인 모델의 속성이 변경될 경우 템플릿 기반으로 매핑된 타입도 자동 동기화되어 오타나 속성 누락을 효과적으로 예방할 수 있습니다.', '다만 키 집합의 크기가 지나치게 가변적이거나 외부에 노출되는 공용 API 형태라면 명시적인 유니온 타입이나 코드 제네레이터를 활용하는 편이 더 명확할 수 있습니다.'],
     starter: { 'index.ts': `export type ChangeEvent<T> = string;
@@ -400,10 +400,10 @@ export type PublicMetrics<T> = { [K in keyof T as \`metric_${'${Extract<K, strin
     ],
     workedExample: {
       title: '완성 예시: 검증을 통과한 문자열에만 브랜드 타입 부여하기',
-      code: 'declare const userIdBrand: unique symbol;\ntype UserId = string & { readonly [userIdBrand]: "UserId" };\n\nfunction toUserId(value: string): UserId {\n  if (!/^user_[1-9]\\d*$/.test(value)) throw new Error("잘못된 사용자 ID");\n  return value as UserId;\n}',
-      result: ['"user_" 뒤에 선행 0이 없는 양의 정수가 오는지 확인한 뒤 UserId 타입을 부여합니다.', '일반 string은 UserId가 필요한 곳에 넣을 수 없습니다. UserId는 string의 하위 타입이므로 string을 받는 곳에는 전달할 수 있습니다.'],
+      code: 'declare const orderIdBrand: unique symbol;\ntype OrderId = string & { readonly [orderIdBrand]: "OrderId" };\n\nfunction toOrderId(value: string): OrderId {\n  if (!value.startsWith("ord_")) throw new Error("잘못된 주문 ID");\n  return value as OrderId;\n}',
+      result: ['"ord_" 접두사를 확실히 검증한 런타임 경계 시점에서만 OrderId 타입으로 단언(Assertion)합니다.', 'OrderId 타입은 일반 string 및 다른 ID 타입과의 혼용을 정적으로 막아주지만, 데이터의 실존 여부까지 보장하지는 않습니다.'],
     },
-    mission: 'toOrderId 함수가 unknown 값을 받아 "ord_" 뒤에 선행 0이 없는 양의 정수가 오는지 검사하게 만드세요. 검사를 통과하면 OrderId 타입을 반환하고, 나머지는 오류로 처리하세요.',
+    mission: 'toOrderId 함수가 unknown 타입 인수를 받아서 "ord_" 접두사 및 양의 정수 규칙을 올바르게 검증했을 때만 OrderId 타입을 반환하도록 구현하고, 유효하지 않은 값은 에러로 처리하세요.',
     goals: ['검증되지 않은 임의의 런타임 지점에서 브랜드 단언을 남발하지 않는다.', '브랜드 타입이 정적으로 보장해 주는 포맷 검증과, 런타임에 보장해야 하는 데이터 존재/권한 영역을 구분한다.'],
     hints: ['전달받은 value 매개변수가 string 타입인지 먼저 검사하세요.', '정규 표현식 `/^ord_[1-9]\\d*$/`를 사용해 전체 문자열 포맷 규칙을 확인하세요.', '모든 런타임 검증 조건을 통과한 마지막 단 한 곳에서만 `as OrderId`로 단언을 적용하세요.'],
     explanation: ['OrderId와 UserId가 서로 다른 브랜드 타입으로 분리되면, 두 값이 모두 자바스크립트의 string일지라도 컴파일 타임에 서로 교차 할당될 수 없어 식별자 혼용 사고를 방지할 수 있습니다.', '브랜드 타입은 데이터베이스의 외래 키(FK) 검증이나 사용자 인가 검사를 대신해주지 않습니다. 실제 레코드의 존재 여부와 접근 권한은 레포지토리 레이어 및 인가 로직 경계에서 별도로 다루어야 합니다.'],
