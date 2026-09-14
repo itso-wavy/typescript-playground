@@ -4,6 +4,7 @@ import { runBundle } from '../runner/browser-runner.js';
 import { CodeEditor } from './CodeEditor.js';
 import { ResultPanel } from './ResultPanel.js';
 import { ReviewPanel } from './ReviewPanel.js';
+import { FormattedText, HighlightedTypeScript } from './FormattedText.js';
 import { getSyncConflict, prepareConflictResolution } from '../progress/local-drafts.js';
 
 export interface ProgressStore {
@@ -249,19 +250,19 @@ export function LessonPage({ lesson, position, repository, checkLesson, onProgre
       </header>
 
       <section className="lesson-copy" aria-label="학습 설명">
-        <p>{lesson.story}</p>
+        <p><FormattedText text={lesson.story} /></p>
         <h2>이번에 확인할 것</h2>
-        <ul>{lesson.concept.map((item) => <li key={item}>{item}</li>)}</ul>
+        <ul>{lesson.concept.map((item) => <li key={item}><FormattedText text={item} /></li>)}</ul>
         {lesson.workedExample ? (
           <section className="worked-example" aria-labelledby="worked-example-heading">
             <h2 id="worked-example-heading">{lesson.workedExample.title}</h2>
-            <pre><code>{lesson.workedExample.code}</code></pre>
-            <ul>{lesson.workedExample.result.map((item) => <li key={item}>{item}</li>)}</ul>
+            <pre><HighlightedTypeScript code={lesson.workedExample.code} /></pre>
+            <ul>{lesson.workedExample.result.map((item) => <li key={item}><FormattedText text={item} /></li>)}</ul>
           </section>
         ) : null}
         <h2>과제</h2>
-        <p>{lesson.mission}</p>
-        <ul className="goals">{lesson.goals.map((goal) => <li key={goal}>{goal}</li>)}</ul>
+        <p><FormattedText text={lesson.mission} /></p>
+        <ul className="goals">{lesson.goals.map((goal) => <li key={goal}><FormattedText text={goal} /></li>)}</ul>
       </section>
 
       <CodeEditor files={files} editableFiles={lesson.editableFiles} activeFile={activeFile} onActiveFileChange={setActiveFile} onChange={changeFile} onRun={run} running={checking} />
@@ -276,13 +277,13 @@ export function LessonPage({ lesson, position, repository, checkLesson, onProgre
 
       <section className="hints" aria-labelledby="hint-heading">
         <div className="hint-heading"><h2 id="hint-heading">힌트</h2><span>{hintCount} / {lesson.hints.length}</span></div>
-        {visibleHints.map((hint, index) => <p key={hint}><strong>{index + 1}.</strong> {hint}</p>)}
+        {visibleHints.map((hint, index) => <p key={hint}><strong>{index + 1}.</strong> <FormattedText text={hint} /></p>)}
         {hintCount < lesson.hints.length && <button className="quiet-button" type="button" onClick={() => setHintCount((count) => count + 1)}>힌트 하나 보기</button>}
       </section>
 
       <section className="explanation" aria-labelledby="why-heading">
         <h2 id="why-heading">왜 이런가요?</h2>
-        {lesson.explanation.map((item) => <p key={item}>{item}</p>)}
+        {lesson.explanation.map((item) => <p key={item}><FormattedText text={item} /></p>)}
         <div className="sources">{lesson.sources.map((source) => <a href={source.url} key={source.url} target="_blank" rel="noreferrer">{source.title}</a>)}</div>
       </section>
 

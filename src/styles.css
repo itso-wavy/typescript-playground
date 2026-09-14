@@ -68,6 +68,8 @@ button:focus-visible, a:focus-visible, summary:focus-visible, textarea:focus-vis
 .worked-example { margin: 28px 0; }
 .worked-example h2 { margin-top: 0; }
 .worked-example pre { overflow-x: auto; margin: 12px 0; padding: 18px 20px; border-radius: 16px; background: #141414; color: #f3f3f3; font: 14px/1.65 ui-monospace, SFMono-Regular, Consolas, monospace; }
+.worked-example code { font: inherit; }
+.inline-code { padding: .12em .38em; border: 1px solid #dedede; border-radius: 6px; background: #f3f3f3; color: #242424; font: .9em/1.4 ui-monospace, SFMono-Regular, Consolas, monospace; overflow-wrap: anywhere; }
 .worked-example ul { margin-bottom: 0; }
 .goals { color: #444; }
 .editor-card { overflow: hidden; border-radius: 24px; background: #141414; color: #f3f3f3; }
