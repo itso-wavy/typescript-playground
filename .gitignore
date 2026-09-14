@@ -11,3 +11,5 @@ coverage/
 .vite/
 *.tsbuildinfo
 .superpowers/
+.omx/
+task-*-report.md
