@@ -1,0 +1,28 @@
+import type { LessonFixture } from './types.js';
+
+const missing = (name: string) => [{ name: '필수 export 누락', files: { 'index.ts': `export const ${name} = undefined;` } }];
+
+export const fixtures: LessonFixture[] = [
+  { lessonId: 'b17', typeTests: `import { message, type RequestState } from './index.js';
+const ok: RequestState<string> = { status: 'success', data: 'ok' };
+// @ts-expect-error data cannot accompany loading
+const bad: RequestState<string> = { status: 'loading', data: 'old' };
+message(ok);`, runtimeTests: `check('loading', learner.message({status:'loading'}) === '불러오는 중'); check('success', learner.message({status:'success',data:'완료'}) === '완료'); check('error', learner.message({status:'error',error:'실패'}) === '실패');`, alternatives: [{ 'index.ts': `export type RequestState<T>={status:'loading'}|{status:'success';data:T}|{status:'error';error:string}; export function message(s:RequestState<string>){if(s.status==='loading')return '불러오는 중';if(s.status==='success')return s.data;return s.error;}` }], invalid: missing('message') },
+  { lessonId: 'b18', typeTests: `import { hasAddress } from './index.js';
+const value: unknown = { address: '서울' };
+if (hasAddress(value)) { const address: string = value.address; }
+// @ts-expect-error unknown has no address
+const wrong: string = (null as unknown).address;`, runtimeTests: `check('valid address',learner.hasAddress({address:'서울'})===true);for(const value of [null,[],{address:''},{address:'   '},{address:3},{}])check('reject malformed address',learner.hasAddress(value)===false);`, alternatives: [{ 'index.ts': `export type WithAddress={address:string};export const hasAddress=(v:unknown):v is WithAddress=>typeof v==='object'&&v!==null&&!Array.isArray(v)&&'address'in v&&typeof v.address==='string'&&v.address.trim().length>0;` }], invalid: [{ name: '타입은 맞지만 빈 주소를 허용하는 가드', files: { 'index.ts': `export type WithAddress={address:string};export const hasAddress=(v:unknown):v is WithAddress=>typeof v==='object'&&v!==null&&'address'in v&&typeof v.address==='string';` } }] },
+  { lessonId: 'b19', typeTests: `import { toPayment } from './index.js';
+const payment = toPayment({id:'p1',total:3}); const id:string = payment.id;
+// @ts-expect-error
+const no:boolean = payment.total;`, runtimeTests: `check('valid',learner.toPayment({id:'p1',total:3}).total===3);for(const value of [null,[],{error:'no'},{id:3,total:'3'},{id:'',total:1},{id:'p1',total:Infinity}]){let failed=false;try{learner.toPayment(value)}catch{failed=true}check('invalid response',failed);}`, alternatives: [{ 'index.ts': `export type Payment={id:string;total:number};export function toPayment(v:unknown):Payment{if(typeof v!=='object'||v===null||Array.isArray(v))throw Error('invalid');const x=v as Record<string,unknown>;if(typeof x.id!=='string'||x.id.length===0||typeof x.total!=='number'||!Number.isFinite(x.total))throw Error('invalid');return{id:x.id,total:x.total};}` }], invalid: missing('toPayment') },
+  { lessonId: 'b20', typeTests: `import { toOrderCard } from './index.js';
+const card=toOrderCard({id:'o1',created_at:'2025-01-01T00:00:00Z',assignee:null}); const date:Date=card.createdAt;
+// @ts-expect-error
+const nope:null=card.assigneeName;`, runtimeTests: `const card=learner.toOrderCard({id:'o1',created_at:'2025-01-01T00:00:00Z',assignee:null});check('nullable assignee',card.assigneeName==='미배정');check('empty assignee preserved',learner.toOrderCard({id:'o1',created_at:'2025-01-01T00:00:00Z',assignee:''}).assigneeName==='');check('date',card.createdAt instanceof Date);let failed=false;try{learner.toOrderCard({id:'o1',created_at:'bad-date',assignee:null})}catch{failed=true}check('invalid date',failed);`, alternatives: [{ 'index.ts': `export type OrderDto={id:string;created_at:string;assignee:string|null};export type OrderCard={id:string;createdAt:Date;assigneeName:string};export function toOrderCard(d:OrderDto):OrderCard{const createdAt=new Date(d.created_at);if(Number.isNaN(createdAt.getTime()))throw Error('date');return{id:d.id,createdAt,assigneeName:d.assignee??'미배정'}}` }], invalid: missing('toOrderCard') },
+  { lessonId: 'b21', typeTests: `import { parseQuantity } from './index.js';
+const result=parseQuantity('2'); if(result.ok){const n:number=result.value}else{const s:string=result.error}`, runtimeTests: `for(const raw of ['', '   ', '1.5', '-1']){const result=learner.parseQuantity(raw);check('invalid quantity',!result.ok&&typeof result.error==='string')}const ok=learner.parseQuantity('2');check('success result',ok.ok&&ok.value===2);`, alternatives: [{ 'index.ts': `export type Result<T,E>={ok:true;value:T}|{ok:false;error:E};export function parseQuantity(raw:string):Result<number,string>{if(raw.trim()==='')return{ok:false,error:'invalid'};const n=Number(raw);return Number.isInteger(n)&&n>=0?{ok:true,value:n}:{ok:false,error:'invalid'}}` }], invalid: missing('parseQuantity') },
+  { lessonId: 'b22', typeTests: `import { userId, orderId, type UserId, type OrderId } from './index.js'; const u:UserId=userId('usr_1'); const o:OrderId=orderId('ord_1'); // @ts-expect-error
+const swapped:OrderId=u;`, runtimeTests: `check('user',learner.userId('usr_1')==='usr_1');let failed=false;try{learner.orderId('usr_1')}catch{failed=true}check('prefix validation',failed);`, alternatives: [{ 'index.ts': `export type UserId=string&{readonly __brand:'UserId'};export type OrderId=string&{readonly __brand:'OrderId'};export function userId(v:string){if(!/^usr_.+/.test(v))throw Error('id');return v as UserId}export function orderId(v:string){if(!/^ord_.+/.test(v))throw Error('id');return v as OrderId}` }], invalid: missing('userId') },
+];

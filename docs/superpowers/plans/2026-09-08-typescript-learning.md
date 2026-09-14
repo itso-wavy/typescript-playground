@@ -76,7 +76,7 @@ export type SaveResult =
   | {status: 'offline'; message: string};
 ```
 
-サーバー contracts fixture type in `server/curriculum/types.ts`:
+서버 fixture 계약 타입 in `server/curriculum/types.ts`:
 
 ```ts
 import type {FileMap} from '../../src/shared/contracts.js';
@@ -92,6 +92,8 @@ export interface LessonFixture {
 
 Type contracts assert positive assignments and negative cases with trusted `@ts-expect-error`. Learner files cannot suppress diagnostics. Tests must reject `any` when it defeats the objective using `IsAny<T> = 0 extends (1 & T) ? true : false` and multiple invocation contracts. No source equality grading. Advanced TypeScript cannot be exhaustively certified by finite tests; do not market tests as proof of total correctness.
 
+
+Runtime fixture contract: `runtimeTests` is JavaScript async function BODY. It receives in-scope `learner` (entry module exports), `check(name: string, passed: boolean)` (records check), `render(element)` (React static HTML helper), and `setHtml(html: string)` (records bounded snapshot). Example: `check("첫 값", learner.first([1,2]) === 1); check("빈 목록", learner.first([]) === undefined);`. TSX runtime tests use `learner` exported demo/React element; no TypeScript syntax inside runtimeTests. Server bundles these trusted helpers, calls fixture body with explicit capabilities, and returns RuntimeResult via a trusted capture. Learner cannot select fixture, compiler config or mode. `typeTests` is trusted TS/TSX text importing `./index.js`; server resolves to lesson index.ts or index.tsx. Each lesson provides one of these entries. Runtime bundle executes entry module in Worker only. `mode=typecheck` needs no bundle and passes only when all compiler contracts pass. Chapter fixture files export `fixtures`, client chapters export `lessons`.
 ### Task 1: Foundation and first working type contract
 
 **Files:** create `package.json`, `package-lock.json`, `.gitignore`, `.env.example`, `tsconfig.json`, `vite.config.ts`, `vitest.config.ts`, `index.html`, `src/shared/contracts.ts`, `server/curriculum/types.ts`, `src/main.tsx`, `src/App.tsx`, `src/styles.css`, `tests/contracts.test.ts`.
@@ -137,7 +139,7 @@ expect(result.compilerVersion).toBe('7.0.2');
 const [a,b] = await Promise.all([repo.save(draft,0),repo.save(otherDraft,0)]);
 expect([a.status,b.status].sort()).toEqual(['conflict','saved']);
 ```
-- [ ] Use Supabase `signInWithOtp({email, options:{shouldCreateUser:false}})` and `verifyOtp({email,token,type:'email'})`. Give actual errors and resend cooldown; configure email template with `{{ .Token }}` in deployment instructions. API validates bearer token with Supabase getUser(jwt), then compares configured owner UUID. Never trust client getSession as server authentication.
+- [ ] Use Supabase default Magic Link via `signInWithOtp({email, options:{shouldCreateUser:false,emailRedirectTo}})`. Keep same-origin redirect and resend cooldown; use the default link template without custom SMTP. API validates bearer token with Supabase getUser(jwt), then compares configured owner UUID. Never trust client getSession as server authentication.
 - [ ] Migration creates owner allowlist (not writable by authenticated users), lesson_progress, preferences and an authenticated save RPC. Enable RLS; policies require auth.uid equals row user_id and membership in owner allowlist. RPC checks auth.uid, locks row, compares revision, and returns saved/conflict. Concurrent insert uses unique(user_id,lesson_id) plus conflict resolution; no check-then-insert gap. Grant only necessary privileges; set safe search_path.
 - [ ] Browser debounces saves; offline snapshot includes base version. On conflict keep both versions, show explicit choose remote/keep mine with comparison, resubmit chosen version using remote version. Never blindly overwrite on reconnect. Persistence failure is not lesson failure.
 - [ ] Last visit and optional notes sync too. Completion from earlier code survives edits and a “수정 후 재검증 필요” state distinguishes current source. Do not auto-complete on reading solution.
@@ -215,7 +217,7 @@ expect(fixtures.map(x=>x.lessonId).sort()).toEqual(lessons.map(x=>x.id).sort());
 
 - [ ] Provide actual local setup/build/start commands and script descriptions. Document lesson authoring and fixture verification. Explain local unsynced preview honestly.
 - [ ] Prepare non-root production container, serve same-origin app/API, limit job concurrency and size, avoid placing credentials in compiler child environment. If compiler sandbox host isolation cannot be verified locally (Docker is not currently installed), record this and do not deploy unsafe API.
-- [ ] Document Supabase migration application, owner provisioning/allowlist, OTP email template and signup disabled, env wiring, private access smoke test, backup/conflict behavior. SQL examples use configuration variables, not fake secrets.
+- [ ] Document Supabase migration application, owner provisioning/allowlist, Magic Link email and signup disabled, redirect URL configuration, env wiring, private access smoke test, backup/conflict behavior. SQL examples use configuration variables, not fake secrets.
 - [ ] User has deferred creating Supabase until implementation. Finish all local testable work, then report precisely which live checks require connection. No chargeable resource creation or public publishing.
 
 ## Self-review checklist (controller)
@@ -224,3 +226,4 @@ expect(fixtures.map(x=>x.lessonId).sort()).toEqual(lessons.map(x=>x.id).sort());
 - [ ] Check interface exports are identical across tasks, especially filenames and runtime result shapes.
 - [ ] Search placeholders; examples with invalid learner answers are deliberate educational fixtures, not unfinished implementation.
 - [ ] Limit claims: offline/local verification is not online synchronization or deployed security validation.
+
