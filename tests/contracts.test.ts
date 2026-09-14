@@ -4,7 +4,7 @@ import { validateCheckRequest } from '../src/shared/validation';
 describe('validateCheckRequest', () => {
   it('accepts a minimal valid request', () => {
     expect(validateCheckRequest({
-      lessonId: 'g01',
+      lessonId: 'ts01.inference-literals',
       files: { 'index.ts': 'export {}' },
       requestId: 'a',
       codeRevision: 1,
@@ -21,13 +21,13 @@ describe('validateCheckRequest', () => {
 
   it('rejects traversal paths and non-TypeScript files', () => {
     expect(validateCheckRequest({
-      lessonId: 'g01',
+      lessonId: 'ts01.inference-literals',
       files: { '../secret.ts': 'x' },
       requestId: 'a',
       codeRevision: 1,
     })).toBe(false);
     expect(validateCheckRequest({
-      lessonId: 'g01',
+      lessonId: 'ts01.inference-literals',
       files: { 'index.js': 'export {}' },
       requestId: 'a',
       codeRevision: 1,
@@ -36,7 +36,7 @@ describe('validateCheckRequest', () => {
 
   it('rejects source files totaling more than 64 KiB', () => {
     expect(validateCheckRequest({
-      lessonId: 'g01',
+      lessonId: 'ts01.inference-literals',
       files: { 'index.ts': 'x'.repeat(64 * 1024 + 1) },
       requestId: 'a',
       codeRevision: 1,
