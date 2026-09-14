@@ -43,9 +43,10 @@ describe('learning screen', () => {
 
     const example = screen.getByRole('heading', { name: /완성 예시: 기능 플래그/ });
     const assignment = screen.getByRole('heading', { name: '과제' });
+    const exampleSection = example.closest('section');
     expect(example.compareDocumentPosition(assignment) & Node.DOCUMENT_POSITION_FOLLOWING).not.toBe(0);
-    expect(screen.getByText(/as const satisfies Record/)).not.toBeNull();
-    expect(screen.getByText(/"enabled"를 입력하면 타입 오류/)).not.toBeNull();
+    expect(exampleSection?.textContent).toMatch(/as const satisfies Record/);
+    expect(exampleSection?.textContent).toMatch(/"enabled".*타입 오류/);
   });
 
   it('moves to the next lesson without marking it complete', async () => {
@@ -143,6 +144,22 @@ describe('learning screen', () => {
     await user.click(screen.getByRole('button', { name: '초기화' }));
     expect(confirm).toHaveBeenCalled();
     expect((editor as HTMLTextAreaElement).value).toContain('// keep');
+  });
+
+  it('returns to the initial run prompt after resetting completed code', async () => {
+    const user = userEvent.setup();
+    const lesson = lessons.find((item) => item.id === 'ts01.inference-literals')!;
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    page(lesson);
+
+    await user.click(screen.getByRole('button', { name: '해설 코드 보기' }));
+    await user.click(screen.getByRole('button', { name: '실행·확인' }));
+    expect(await screen.findByText('타입 계약을 통과했습니다.')).not.toBeNull();
+
+    await user.click(screen.getByRole('button', { name: '초기화' }));
+
+    expect(screen.getByText('실행·확인을 누르면 타입 계약과 과제를 확인합니다.')).not.toBeNull();
+    expect(screen.queryByText('코드가 바뀌었습니다. 다시 실행해 확인하세요.')).toBeNull();
   });
 
   it('debounces an edit into a persisted draft', async () => {

@@ -127,7 +127,9 @@ export function LessonPage({ lesson, position, repository, checkLesson, onProgre
     return () => window.clearTimeout(timer);
   }, [hydrated, queueSave, saveTick]);
 
-  const needsRecheck = completedCode !== null && completedCode !== stableFiles(files);
+  const currentCode = stableFiles(files);
+  const isInitialCode = currentCode === stableFiles(lesson.starter);
+  const needsRecheck = completedCode !== null && completedCode !== currentCode && !isInitialCode;
   const visibleHints = lesson.hints.slice(0, hintCount);
   const currentFile = files[activeFile] ?? '';
   const codeLabel = useMemo(() => lesson.kind === 'diagnostic' ? '진단 확인' : '실행·확인', [lesson.kind]);

@@ -31,7 +31,7 @@ export const lessons: Lesson[] = [
       result: [
         'as const 단언을 통해 checkout 속성이 일반 string이 아니라 "on" 리터럴 타입으로 유지되며 값 변경이 차단됩니다.',
         'satisfies 연산자는 각 속성값이 FeatureState 범위 내에 있는지 검사합니다. "enabled" 같은 허용되지 않은 값을 넣으면 타입 오류가 발생합니다.',
-        '객체에 Record 타입을 직접 지정하면 값 검사는 가능하지만 checkout 속성의 타입이 FeatureState로 넓어져 구체적인 리터럴 타입이 사라집니다.',
+        '객체에 `Record<"checkout" | "search", FeatureState>` 타입을 직접 지정하면 checkout 속성은 현재 값인 "on"이 아니라 허용 범위 전체인 `FeatureState`, 즉 "on" | "off"로 추론됩니다. `satisfies`를 사용하면 허용된 값인지 검사하면서 checkout 속성의 "on" 리터럴 타입도 유지합니다.',
       ],
     },
     mission: 'environments 객체를 수정해 보세요. preview의 "staging"을 "development"로 바꾸고, app과 preview에 Environment 타입이 허용하는 값만 들어가도록 제한하세요. 완성 후 app의 타입은 "production", preview의 타입은 "development" 리터럴 타입으로 유지되어야 합니다.',
