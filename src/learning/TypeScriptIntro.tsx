@@ -48,7 +48,6 @@ export function TypeScriptIntro({ completedCount, totalCount, diagnosticComplete
             <li><strong>프레임워크 연동:</strong> React, Node.js, NestJS 타입 경계 설계</li>
             <li><strong>종합 실습:</strong> 작은 주문 기능 구현 완성</li>
           </ol>
-          <p><em>React 과정에서는 Props와 상태(State)의 타입을 연결하고, Node.js·NestJS 과정에서는 DTO와 도메인 규칙으로 API 계약을 완성합니다. 단순히 문법을 배우는 데 그치지 않고, 다음 단계로 확장 가능한 <strong>타입 경계 설계 능력</strong>을 기르는 데 초점을 둡니다.</em></p>
         </article>
       </section>
     </main>

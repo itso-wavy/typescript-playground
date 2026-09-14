@@ -1,6 +1,11 @@
 :root { color: #141414; background: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; font-synthesis: none; }
 * { box-sizing: border-box; }
-body { margin: 0; min-width: 320px; background: #fff; }
+body {
+  margin: 0;
+  min-width: 320px;
+  background: #fff;
+  word-break: keep-all; /* 한국어 단어 중간 개행 방지 */
+}
 button, textarea { font: inherit; }
 button, a, summary, textarea { -webkit-tap-highlight-color: transparent; }
 button { cursor: pointer; }
