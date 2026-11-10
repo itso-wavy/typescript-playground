@@ -1,0 +1,91 @@
+{
+  "stack": "nextjs",
+  "course": {
+    "audience": {
+      "description": "JavaScript와 React의 기본 문법을 알고 있으며 작은 Next.js 사이트를 처음부터 배포까지 완성하려는 웹 개발 학습자입니다.",
+      "prerequisites": [
+        "JavaScript 함수와 비동기 코드를 작성할 수 있다.",
+        "React 컴포넌트와 props의 기본 사용법을 알고 있다."
+      ]
+    },
+    "completionOutcomes": [
+      "Next.js 프로젝트를 만들고 로컬 개발 환경과 환경 변수를 설정한다.",
+      "서버와 브라우저에서 실행할 컴포넌트를 구분해 상품 페이지를 구현한다.",
+      "production 빌드를 확인하고 배포 후 환경 변수와 metadata 문제를 진단한다."
+    ],
+    "flow": [
+      {
+        "id": "complete-site",
+        "title": "작은 사이트 구축과 배포",
+        "rationale": "프로젝트 생성부터 화면 구현과 배포 확인까지 실제 작업 순서대로 진행해 각 단계의 결과를 다음 단계에서 사용합니다.",
+        "outcomeRefs": [0, 1, 2],
+        "lessonIds": ["n00", "n01", "n02"]
+      }
+    ],
+    "practicePlan": {
+      "minimum": 3,
+      "maximum": 3,
+      "rationale": "fixture에서는 공통 하네스가 환경 설정, 사이트 구현, 배포 확인의 세 필수 단계를 검사하는 데 필요한 최소 실습만 둡니다.",
+      "decision": "approved"
+    }
+  },
+  "lessons": [
+    {
+      "id": "n00",
+      "kind": "practice",
+      "title": "프로젝트 환경 세팅",
+      "navTitle": "환경 세팅",
+      "summary": "Next.js 프로젝트를 만들고 실행에 필요한 폴더 구조, 패키지, 환경 변수를 확인합니다.",
+      "story": "새 기능을 만들기 전에 팀 프로젝트가 어떤 구조로 시작되는지 알아야 합니다. 로컬에서 앱을 실행하고, 환경 변수를 분리하고, App Router 기준 폴더를 확인해야 이후 페이지와 서버 코드를 안전하게 붙일 수 있습니다.",
+      "concept": [
+        "Next.js 프로젝트는 라우팅, 서버 렌더링, 빌드 설정이 한곳에 묶여 있으므로 초기 구조를 먼저 이해해야 합니다.",
+        "환경 변수는 로컬 실행과 배포 환경에서 값이 달라질 수 있으므로 코드에 직접 쓰지 않고 설정 파일로 분리합니다."
+      ],
+      "mission": "create-next-app으로 만든 프로젝트에서 App Router 구조와 환경 변수 사용 위치를 확인하세요.",
+      "goals": ["프로젝트 시작에 필요한 파일을 설명한다", "로컬과 배포 환경 변수를 구분한다"],
+      "hints": ["app 폴더와 next.config 파일을 먼저 확인하세요.", "브라우저에 노출되는 값과 서버에서만 쓰는 값을 나누세요."],
+      "explanation": ["프로젝트 환경 세팅을 먼저 다루면 이후 페이지, 서버 코드, 배포 설정을 같은 기준으로 설명할 수 있습니다."],
+      "sources": [{ "title": "Next.js Getting Started", "url": "https://nextjs.org/docs/app/getting-started/installation" }],
+      "hasStarter": true,
+      "hasSolution": true
+    },
+    {
+      "id": "n01",
+      "kind": "practice",
+      "title": "Server Component",
+      "navTitle": "Server Component",
+      "summary": "상품 상세 페이지에서 서버 데이터 조회와 브라우저 상호작용을 어느 컴포넌트에 둘지 나눕니다.",
+      "story": "상품 상세 페이지를 만들 때 상품 이름과 가격은 서버에서 먼저 가져오고, 장바구니 버튼은 브라우저에서 눌러야 합니다. 같은 화면 안에서도 서버에서 끝낼 일과 브라우저에서 처리할 일이 갈리므로, 이 차이를 코드 구조로 나눠 봅니다.",
+      "concept": [
+        "Server Component는 서버에서 실행되므로 데이터 조회 코드를 브라우저 번들에 넣지 않고 페이지를 준비할 수 있습니다.",
+        "클릭, 입력, useState처럼 브라우저에서 바뀌는 상태가 필요하면 그 부분만 Client Component로 분리합니다."
+      ],
+      "mission": "상품 상세 페이지에서 서버 데이터 조회 코드와 장바구니 버튼 컴포넌트를 분리하세요.",
+      "goals": ["Server Component의 실행 위치를 설명한다", "Client Component가 필요한 상황을 구분한다"],
+      "hints": ["상품 데이터 조회는 page에서 처리하세요.", "클릭 상태는 client component에 둡니다."],
+      "explanation": ["상품 정보는 서버에서 준비되고 버튼 상태는 브라우저에서 바뀝니다."],
+      "sources": [{ "title": "Next.js Server and Client Components", "url": "https://nextjs.org/docs/app/getting-started/server-and-client-components" }],
+      "hasStarter": true,
+      "hasSolution": true
+    },
+    {
+      "id": "n02",
+      "kind": "practice",
+      "title": "배포와 운영 확인",
+      "navTitle": "배포와 운영",
+      "summary": "Next.js 앱을 production 빌드로 확인하고 배포 후 환경 변수, 로그, metadata 문제를 점검합니다.",
+      "story": "로컬에서 잘 보이는 페이지도 배포 후에는 환경 변수 누락, production 빌드 오류, metadata 설정 누락 때문에 깨질 수 있습니다. 실제 사이트를 운영하려면 배포 결과를 보고 문제를 찾는 과정까지 학습해야 합니다.",
+      "concept": [
+        "production 빌드는 개발 서버보다 엄격하게 동작하므로 배포 전에 빌드 오류를 먼저 확인해야 합니다.",
+        "운영 환경에서는 환경 변수, 로그, SEO metadata, 캐시 동작처럼 사용자가 보는 결과와 연결되는 설정을 함께 확인합니다."
+      ],
+      "mission": "production 빌드를 실행하고 배포 환경에서 필요한 환경 변수와 metadata 설정을 점검하세요.",
+      "goals": ["배포 전에 production 빌드를 확인한다", "운영 환경에서 확인해야 할 항목을 설명한다"],
+      "hints": ["dev 서버와 production 빌드의 차이를 확인하세요.", "환경 변수와 metadata는 배포 후 문제로 자주 드러납니다."],
+      "explanation": ["Next.js 학습은 화면 구현에서 끝나지 않고, 배포 후 사용자에게 안정적으로 보이는지 확인하는 단계까지 이어져야 합니다."],
+      "sources": [{ "title": "Next.js Deploying", "url": "https://nextjs.org/docs/app/getting-started/deploying" }],
+      "hasStarter": true,
+      "hasSolution": true
+    }
+  ]
+}
